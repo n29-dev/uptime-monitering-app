@@ -17,7 +17,7 @@ const helpers = require("./lib/helpers");
 
 // server fn
 const server = (req, res) => {
-    const { pathname, query } = url.parse(req.url);
+    const { pathname, query } = url.parse(req.url, true);
     const path = pathname.replace(/^\/|\/$/g, "");
     const method = req.method.toLowerCase();
 

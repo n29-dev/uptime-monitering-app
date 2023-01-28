@@ -26,9 +26,9 @@ handlers.users = (req, callback) => {
     }
 };
 
-
 handlers._users = {};
 
+// add user
 handlers._users.post = (req, callback) => {
     const {firstName, lastName, email, phone, password} = helpers.jsonToOject(req.payload);
 
@@ -39,6 +39,7 @@ handlers._users.post = (req, callback) => {
     const VPassword = (typeof password === 'string' && password.trim().length >= 8) ? helpers.hash(password) : '';
 
     // check errr after validation
+    let error = null;
 
     switch('') {
             case vFirstName: 
@@ -99,6 +100,42 @@ handlers._users.post = (req, callback) => {
         }})
 }
 
+// get user
+handlers._users.get = (req, callback) => {
+    const {phone} = req.query;
+
+    if(!phone || phone.length < 11){
+        callback({
+            statusCode: 200,
+            payload: {
+                status: false,
+                error: 'Invalid phone number'
+            }
+        })
+
+    }else{
+        _data.read({url: `users/${phone}.json`, callback: (error, data) => {
+
+            if(error){
+                callback({
+                    statusCode: 200,
+                    payload: {
+                        status: false,
+                        error: 'User not found'
+                    }
+                })
+            }else{
+                callback({
+                    statusCode: 200,
+                    payload: {
+                        status: false,
+                        data,
+                    }
+                })
+            }
+        }})
+    }
+}
 
 // 404 handler
 handlers.notFound = (req, callback) => {
