@@ -13,12 +13,13 @@ const router = require("./router");
 const handlers = require("./handlers");
 
 const config = require('./config');
+const helpers = require("./lib/helpers");
 
 // server fn
 const server = (req, res) => {
     const { pathname, query } = url.parse(req.url);
     const path = pathname.replace(/^\/|\/$/g, "");
-    const method = req.method.toUpperCase();
+    const method = req.method.toLowerCase();
 
     let payload = "";
     const decoder = new TextDecoder("UTF-8");
@@ -47,7 +48,7 @@ const server = (req, res) => {
                 statusCode: responseStatusCode = 200,
             }) => {
                 res.writeHead(responseStatusCode, responseHeaders);
-                res.write(responsePayload);
+                res.write(helpers.objectToJson(responsePayload));
                 res.end();
             }
         );
