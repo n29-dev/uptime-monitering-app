@@ -6,7 +6,8 @@
 const http = require("node:http");
 const https = require('node:https')
 const url = require("node:url");
-const fs = require('node:fs')
+const fs = require('node:fs');
+const _data = require('./lib/data')
 
 const router = require("./router");
 const handlers = require("./handlers");
