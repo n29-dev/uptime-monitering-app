@@ -201,8 +201,8 @@ handlers._users.put = (req, res) => {
                 return;
             }
 
-            const updatedUser = {...helpers.jsonToOject(data), ...payload};
-            
+            const updatedUser = { ...helpers.jsonToOject(data), ...payload };
+
             _data.update({
                 url: `users/${phone}.json`,
                 data: helpers.objectToJson(updatedUser),
@@ -228,9 +228,52 @@ handlers._users.put = (req, res) => {
     });
 };
 
+// delete user
+handlers._users.delete = (req, res) => {
+    const { phone } = req.query;
+    // phone number not found
+    if (!phone || phone.length < 11) {
+        res({
+            statusCode: 200,
+            payload: {
+                status: false,
+                error: "Invalid phone number",
+            },
+        });
+        return;
+    }
+
+    _data.delete({
+        url: `users/${phone}.json`,
+        callback: (error) => {
+            if (error) {
+                res({
+                    statusCode: 200,
+                    payload: {
+                        status: false,
+                        error: "User does not exist",
+                    },
+                });
+                return;
+            }
+
+            res({
+                statusCode: 200,
+                payload: {
+                    status: true,
+                    data: "User sucessfully deleted",
+                },
+            });
+        },
+    });
+};
+
 // 404 handler
 handlers.notFound = (req, res) => {
-    res({ payload: "Page not found" });
+    res({ statusCode: 404,  payload: {
+        status: false,
+        error: 'Page not found'
+    } });
 };
 
 module.exports = handlers;
