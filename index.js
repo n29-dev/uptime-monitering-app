@@ -4,15 +4,15 @@
  *
 */
 const http = require("node:http");
-const https = require('node:https')
+const https = require("node:https");
 const url = require("node:url");
-const fs = require('node:fs');
-const _data = require('./lib/data')
+const fs = require("node:fs");
+const _data = require("./lib/data");
 
 const router = require("./router");
 const handlers = require("./handlers");
 
-const config = require('./config');
+const config = require("./config");
 const helpers = require("./lib/helpers");
 
 // server fn
@@ -38,7 +38,7 @@ const server = (req, res) => {
             payload,
         };
 
-        const defaultHeaders = {'Content-Type': 'application/json'}
+        const defaultHeaders = { "Content-Type": "application/json" };
 
         handler(
             data,
@@ -53,16 +53,16 @@ const server = (req, res) => {
             }
         );
     });
-}
+};
 
 // http server
 const httpServer = http.createServer(server);
 
 // https server
 const httpsOptions = {
-    key: fs.readFileSync('./https/server.key'),
-    cert: fs.readFileSync('./https/server.cert')
-}
+    key: fs.readFileSync("./https/server.key"),
+    cert: fs.readFileSync("./https/server.cert"),
+};
 
 const httpsServer = https.createServer(httpsOptions, server);
 
@@ -73,4 +73,4 @@ httpServer.listen(config.httpPort, () => {
 
 httpsServer.listen(config.httpsPort, () => {
     console.log(`Server listening on port ${config.httpsPort} in ${config.env}`);
-})
+});
