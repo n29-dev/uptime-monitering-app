@@ -4,18 +4,18 @@
  *
 */
 
-const _data = require("./lib/data");
-const helpers = require("./lib/helpers");
+const _data = require("../lib/data");
+const helpers = require("../lib/helpers");
 
-const handlers = {};
+const users = {};
 
 // users handler
-handlers.users = (req, res) => {
+users.controller = (req, res) => {
     const acceptedMethods = ["get", "post", "put", "delete"];
 
     // check if method supported or not
     if (acceptedMethods.indexOf(req.method) > -1) {
-        const methodHandler = handlers._users[req.method];
+        const methodHandler = users[req.method];
 
         methodHandler(req, res);
     } else {
@@ -29,11 +29,8 @@ handlers.users = (req, res) => {
     }
 };
 
-// user methods
-handlers._users = {};
-
 // add user
-handlers._users.post = (req, res) => {
+users.post = (req, res) => {
     const { firstName, lastName, email, phone, password } = helpers.jsonToOject(req.payload);
 
     const vFirstName = typeof firstName === "string" && firstName?.trim()?.length > 0 ? firstName : "";
@@ -120,7 +117,7 @@ handlers._users.post = (req, res) => {
 };
 
 // get user
-handlers._users.get = (req, res) => {
+users.get = (req, res) => {
     const { phone } = req.query;
 
     if (!phone || phone.length < 11) {
@@ -160,7 +157,7 @@ handlers._users.get = (req, res) => {
 };
 
 // update user
-handlers._users.put = (req, res) => {
+users.put = (req, res) => {
     const { phone } = req.query;
     const payload = helpers.jsonToOject(req.payload);
 
@@ -229,7 +226,7 @@ handlers._users.put = (req, res) => {
 };
 
 // delete user
-handlers._users.delete = (req, res) => {
+users.delete = (req, res) => {
     const { phone } = req.query;
     // phone number not found
     if (!phone || phone.length < 11) {
@@ -268,12 +265,4 @@ handlers._users.delete = (req, res) => {
     });
 };
 
-// 404 handler
-handlers.notFound = (req, res) => {
-    res({ statusCode: 404,  payload: {
-        status: false,
-        error: 'Page not found'
-    } });
-};
-
-module.exports = handlers;
+module.exports = users;
