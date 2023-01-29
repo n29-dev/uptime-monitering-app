@@ -312,7 +312,7 @@ users.put = (req, res) => {
         return filteredObj;
     };
 
-    const filteredUpdateProps = createFilteredUpdateProps({ firstName, lastName, phone, email, password });
+    const filteredUpdateProps = createFilteredUpdateProps({ firstName, lastName, email, password });
 
     _data.read({
         url: `users/${phoneQuery}.json`,
