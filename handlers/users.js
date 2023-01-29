@@ -6,10 +6,9 @@
 
 const _data = require("../lib/data");
 const helpers = require("../lib/helpers");
+const config = require("../config");
 
 const users = {};
-
-const WEEK_IN_MILI_SEC = 1000 * 60 * 60 * 24 * 7;
 
 // users handler
 users.controller = (req, res) => {
@@ -35,11 +34,11 @@ users.controller = (req, res) => {
 users.post = (req, res) => {
     const { firstName, lastName, email, phone, password } = helpers.jsonToOject(req.payload);
 
-    const vFirstName = typeof firstName === "string" && firstName?.trim()?.length > 0 ? firstName : "";
-    const vLastName = typeof lastName === "string" && lastName?.trim()?.length > 0 ? lastName : "";
-    const vEmail = typeof email === "string" && email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g) !== null ? email : "";
-    const vPhone = typeof phone === "string" && phone.trim().length === 11 ? phone : "";
-    const VPassword = typeof password === "string" && password.trim().length >= 8 ? helpers.hash(password) : "";
+    const vFirstName = helpers.input.isValidNameFormat(firstName) ? firstName.trim() : "";
+    const vLastName = helpers.input.isValidNameFormat(lastName) ? lastName.trim() : "";
+    const vEmail = helpers.input.isValidEmailFormat(email) ? email.trim() : "";
+    const vPhone = helpers.input.isValidPhoneFormat(phone) ? phone.trim() : "";
+    const VPassword = helpers.input.isValidPasswordFormat(password) ? helpers.hash(password) : "";
 
     // check errr after validation
     let error = null;
@@ -104,7 +103,7 @@ users.post = (req, res) => {
         password: VPassword,
         token: {
             key: tokenKey,
-            expires: Date.now() + WEEK_IN_MILI_SEC,
+            expires: Date.now() + config.authTokenPeriod,
         },
     };
 
@@ -208,14 +207,14 @@ users.get = (req, res) => {
 
 // update user
 users.put = (req, res) => {
-    const { phone } = req.query;
+    const { phone: phoneQuery } = req.query;
     const payload = helpers.jsonToOject(req.payload);
 
     const { authorization } = req.headers;
     const userToken = authorization?.split(" ")?.pop();
 
     // phone number not found
-    if (!phone || phone.length < 11) {
+    if (!phoneQuery || phoneQuery.length < 11) {
         res({
             statusCode: 200,
             payload: {
@@ -238,7 +237,7 @@ users.put = (req, res) => {
     }
 
     // paylod not found
-    if (!payload) {
+    if (!Object.keys(payload).length) {
         res({
             statusCode: 400,
             payload: {
@@ -249,8 +248,74 @@ users.put = (req, res) => {
         return;
     }
 
+    const payloadObj = helpers.jsonToOject(req.payload);
+
+    const firstName = helpers.isUndefined(payloadObj.firstName)
+        ? undefined
+        : helpers.input.isValidNameFormat(payloadObj.firstName)
+        ? payloadObj.firstName.trim()
+        : "";
+    const lastName = helpers.isUndefined(payloadObj.lastName)
+        ? undefined
+        : helpers.input.isValidNameFormat(payloadObj.lastName)
+        ? payloadObj.lastName.trim()
+        : "";
+    const email = helpers.isUndefined(payloadObj.email)
+        ? undefined
+        : helpers.input.isValidEmailFormat(payloadObj.email)
+        ? payloadObj.email.trim()
+        : "";
+    const password = helpers.isUndefined(payloadObj.password)
+        ? undefined
+        : helpers.input.isValidPasswordFormat(payloadObj.password)
+        ? helpers.hash(payloadObj.password)
+        : "";
+
+    switch ("") {
+        case firstName:
+            error = "Invalid first name";
+            break;
+
+        case lastName:
+            error = "Invalid last name";
+            break;
+
+        case email:
+            error = "Invalid email name";
+            break;
+
+        case password:
+            error = "Invalid password";
+            break;
+
+        default:
+            error = null;
+    }
+
+    if (error) {
+        res({
+            statusCode: 400,
+            payload: {
+                status: false,
+                error,
+            },
+        });
+
+        return;
+    }
+
+    const createFilteredUpdateProps = (obj) => {
+        let filteredObj = {};
+        Object.entries(obj)
+            .filter(([key, value]) => value !== undefined)
+            .forEach(([key, value]) => (filteredObj[key] = value));
+        return filteredObj;
+    };
+
+    const filteredUpdateProps = createFilteredUpdateProps({ firstName, lastName, phone, email, password });
+
     _data.read({
-        url: `users/${phone}.json`,
+        url: `users/${phoneQuery}.json`,
         callback: (error, data) => {
             if (error) {
                 res({
@@ -276,10 +341,10 @@ users.put = (req, res) => {
                 return;
             }
 
-            const updatedUser = { ...prevUserData, ...payload };
+            const updatedUser = { ...prevUserData, ...filteredUpdateProps };
 
             _data.update({
-                url: `users/${phone}.json`,
+                url: `users/${phoneQuery}.json`,
                 data: helpers.objectToJson(updatedUser),
                 callback: (error) => {
                     if (error) {
@@ -333,56 +398,57 @@ users.delete = (req, res) => {
         return;
     }
 
-    _data.read({url: `users/${phone}.json`, callback: (error, data) => {
-        if (error) {
-            res({
-                statusCode: 200,
-                payload: {
-                    status: false,
-                    error: "User does not exist",
-                },
-            });
-            return;
-        }
-
-        // stored token
-        const storedToken = helpers.jsonToOject(data).token;
-        const tokenStatus = helpers.validateToken(userToken, storedToken);
-
-        if (!tokenStatus.status) {
-            res({
-                statusCode: 400,
-                payload: tokenStatus,
-            });
-            return;
-        }
-
-        _data.delete({
-            url: `users/${phone}.json`,
-            callback: (error) => {
-                if (error) {
-                    res({
-                        statusCode: 200,
-                        payload: {
-                            status: false,
-                            error: "User does not exist",
-                        },
-                    });
-                    return;
-                }
-    
+    _data.read({
+        url: `users/${phone}.json`,
+        callback: (error, data) => {
+            if (error) {
                 res({
                     statusCode: 200,
                     payload: {
-                        status: true,
-                        data: "User sucessfully deleted",
+                        status: false,
+                        error: "User does not exist",
                     },
                 });
-            },
-        });
-    }})
+                return;
+            }
 
-    
+            // stored token
+            const storedToken = helpers.jsonToOject(data).token;
+            const tokenStatus = helpers.validateToken(userToken, storedToken);
+
+            if (!tokenStatus.status) {
+                res({
+                    statusCode: 400,
+                    payload: tokenStatus,
+                });
+                return;
+            }
+
+            _data.delete({
+                url: `users/${phone}.json`,
+                callback: (error) => {
+                    if (error) {
+                        res({
+                            statusCode: 200,
+                            payload: {
+                                status: false,
+                                error: "User does not exist",
+                            },
+                        });
+                        return;
+                    }
+
+                    res({
+                        statusCode: 200,
+                        payload: {
+                            status: true,
+                            data: "User sucessfully deleted",
+                        },
+                    });
+                },
+            });
+        },
+    });
 };
 
 module.exports = users;
