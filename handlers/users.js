@@ -9,6 +9,8 @@ const helpers = require("../lib/helpers");
 
 const users = {};
 
+const WEEK_IN_MILI_SEC = 1000 * 60 * 60 * 24 * 7;
+
 // users handler
 users.controller = (req, res) => {
     const acceptedMethods = ["get", "post", "put", "delete"];
@@ -79,6 +81,20 @@ users.post = (req, res) => {
         return;
     }
 
+    const tokenKey = helpers.createToken();
+
+    if (!tokenKey) {
+        res({
+            statusCode: 500,
+            payload: {
+                staus: false,
+                error: "Error generating token",
+            },
+        });
+
+        return;
+    }
+
     // write user to filesystem
     const user = {
         firstName: vFirstName,
@@ -86,6 +102,10 @@ users.post = (req, res) => {
         email: vEmail,
         phone: vPhone,
         password: VPassword,
+        token: {
+            key: tokenKey,
+            expires: Date.now() + WEEK_IN_MILI_SEC,
+        },
     };
 
     _data.create({
@@ -105,6 +125,10 @@ users.post = (req, res) => {
                 return;
             }
 
+            // delete passwork and token exprie from response
+            delete user.password;
+            delete user.token.expires;
+
             res({
                 statusCode: 200,
                 payload: {
@@ -120,12 +144,26 @@ users.post = (req, res) => {
 users.get = (req, res) => {
     const { phone } = req.query;
 
+    const { authorization } = req.headers;
+    const userToken = authorization?.split(" ")?.pop();
+
     if (!phone || phone.length < 11) {
         res({
             statusCode: 200,
             payload: {
                 status: false,
                 error: "Invalid phone number",
+            },
+        });
+        return;
+    }
+
+    if (!userToken) {
+        res({
+            statusCode: 400,
+            payload: {
+                status: false,
+                error: "Please provide auth token",
             },
         });
         return;
@@ -141,6 +179,18 @@ users.get = (req, res) => {
                         status: false,
                         error: "User does not exist",
                     },
+                });
+                return;
+            }
+
+            // stored token
+            const storedToken = helpers.jsonToOject(data).token;
+            const tokenStatus = helpers.validateToken(userToken, storedToken);
+
+            if (!tokenStatus.status) {
+                res({
+                    statusCode: 400,
+                    payload: tokenStatus,
                 });
                 return;
             }
@@ -161,6 +211,9 @@ users.put = (req, res) => {
     const { phone } = req.query;
     const payload = helpers.jsonToOject(req.payload);
 
+    const { authorization } = req.headers;
+    const userToken = authorization?.split(" ")?.pop();
+
     // phone number not found
     if (!phone || phone.length < 11) {
         res({
@@ -172,6 +225,18 @@ users.put = (req, res) => {
         });
         return;
     }
+
+    if (!userToken) {
+        res({
+            statusCode: 400,
+            payload: {
+                status: false,
+                error: "Please provide auth token",
+            },
+        });
+        return;
+    }
+
     // paylod not found
     if (!payload) {
         res({
@@ -198,7 +263,20 @@ users.put = (req, res) => {
                 return;
             }
 
-            const updatedUser = { ...helpers.jsonToOject(data), ...payload };
+            const prevUserData = helpers.jsonToOject(data);
+
+            const storedToken = prevUserData.token;
+            const tokenStatus = helpers.validateToken(userToken, storedToken);
+
+            if (!tokenStatus.status) {
+                res({
+                    statusCode: 400,
+                    payload: tokenStatus,
+                });
+                return;
+            }
+
+            const updatedUser = { ...prevUserData, ...payload };
 
             _data.update({
                 url: `users/${phone}.json`,
@@ -228,6 +306,10 @@ users.put = (req, res) => {
 // delete user
 users.delete = (req, res) => {
     const { phone } = req.query;
+
+    const { authorization } = req.headers;
+    const userToken = authorization?.split(" ")?.pop();
+
     // phone number not found
     if (!phone || phone.length < 11) {
         res({
@@ -240,29 +322,67 @@ users.delete = (req, res) => {
         return;
     }
 
-    _data.delete({
-        url: `users/${phone}.json`,
-        callback: (error) => {
-            if (error) {
-                res({
-                    statusCode: 200,
-                    payload: {
-                        status: false,
-                        error: "User does not exist",
-                    },
-                });
-                return;
-            }
+    if (!userToken) {
+        res({
+            statusCode: 400,
+            payload: {
+                status: false,
+                error: "Please provide auth token",
+            },
+        });
+        return;
+    }
 
+    _data.read({url: `users/${phone}.json`, callback: (error, data) => {
+        if (error) {
             res({
                 statusCode: 200,
                 payload: {
-                    status: true,
-                    data: "User sucessfully deleted",
+                    status: false,
+                    error: "User does not exist",
                 },
             });
-        },
-    });
+            return;
+        }
+
+        // stored token
+        const storedToken = helpers.jsonToOject(data).token;
+        const tokenStatus = helpers.validateToken(userToken, storedToken);
+
+        if (!tokenStatus.status) {
+            res({
+                statusCode: 400,
+                payload: tokenStatus,
+            });
+            return;
+        }
+
+        _data.delete({
+            url: `users/${phone}.json`,
+            callback: (error) => {
+                if (error) {
+                    res({
+                        statusCode: 200,
+                        payload: {
+                            status: false,
+                            error: "User does not exist",
+                        },
+                    });
+                    return;
+                }
+    
+                res({
+                    statusCode: 200,
+                    payload: {
+                        status: true,
+                        data: "User sucessfully deleted",
+                    },
+                });
+            },
+        });
+    }})
+
+    
 };
 
 module.exports = users;

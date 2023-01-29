@@ -20,6 +20,7 @@ const server = (req, res) => {
     const { pathname, query } = url.parse(req.url, true);
     const path = pathname.replace(/^\/|\/$/g, "");
     const method = req.method.toLowerCase();
+    const headers = req.headers;
 
     let payload = "";
     const decoder = new TextDecoder("UTF-8");
@@ -36,6 +37,7 @@ const server = (req, res) => {
             query,
             method,
             payload,
+            headers
         };
 
         const defaultHeaders = { "Content-Type": "application/json" };
