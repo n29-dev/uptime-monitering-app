@@ -16,6 +16,7 @@ config.development = {
     env: "development",
     hashSecret: "secret",
     authTokenPeriod: WEEK_IN_MILI_SEC,
+    maxCheckReqTimeout: 10
 };
 
 // production config
@@ -25,6 +26,7 @@ config.production = {
     env: "production",
     hashSecret: "secret",
     authTokenPeriod: WEEK_IN_MILI_SEC,
+    maxCheckReqTimeout: 10
 };
 
 const currentEnv = process.env.NODE_ENV ? process.env.NODE_ENV.toLowerCase() : "";
