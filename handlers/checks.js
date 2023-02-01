@@ -87,8 +87,7 @@ checks.post = (req, res) => {
             }
 
             // console.log(helpers.input.isValidInputArray(payload?.methods))
-            console.log(typeof payload.methods)
-            
+            console.log(typeof payload.methods);
 
             const url = helpers.input.isValidUrl(payload?.url) ? payload.url.trim() : "";
             const methods = helpers.input.isValidInputArray(payload?.methods) ? payload.methods : "";
@@ -136,7 +135,8 @@ checks.post = (req, res) => {
                 return;
             }
 
-            const checkData = {
+            const newCheck = {
+                id: helpers.createId('ch'),
                 url,
                 methods,
                 protocol,
@@ -144,10 +144,9 @@ checks.post = (req, res) => {
                 timeout,
             };
 
-            _data.create({
+            _data.read({
                 url: `checks/${phone}.json`,
-                data: helpers.objectToJson(checkData),
-                callback: (error) => {
+                callback: (error, data) => {
                     if (error) {
                         res({
                             statusCode: 500,
@@ -156,15 +155,61 @@ checks.post = (req, res) => {
                                 error: "Internal server error",
                             },
                         });
-
                         return;
                     }
 
-                    res({
-                        statusCode: 200,
-                        payload: {
-                            status: true,
-                            data: checkData,
+                    const oldCheckObject = helpers.jsonToOject(data);
+
+                    if (!oldCheckObject?.checks) {
+                        res({
+                            statusCode: 500,
+                            payload: {
+                                status: false,
+                                error: "Internal server error",
+                            },
+                        });
+                        return;
+                    }
+
+                    if(oldCheckObject?.total >= 5){
+                        res({
+                            statusCode: 200,
+                            payload: {
+                                status: false,
+                                error: "Exceed total check amount",
+                            },
+                        });
+                        return;
+                    }
+
+                    const newChecksArray = [...oldCheckObject.checks, newCheck]
+                    const newCheckObject = {
+                        total: newChecksArray.length,
+                        checks: newChecksArray,
+                    };
+
+                    _data.update({
+                        url: `checks/${phone}.json`,
+                        data: helpers.objectToJson(newCheckObject),
+                        callback: (error) => {
+                            if (error) {
+                                res({
+                                    statusCode: 500,
+                                    payload: {
+                                        status: false,
+                                        error: "Internal server error",
+                                    },
+                                });
+                                return;
+                            }
+
+                            res({
+                                statusCode: 200,
+                                payload: {
+                                    status: true,
+                                    data: newCheckObject,
+                                },
+                            });
                         },
                     });
                 },

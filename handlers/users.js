@@ -124,15 +124,35 @@ users.post = (req, res) => {
                 return;
             }
 
-            // delete passwork and token exprie from response
-            delete user.password;
-            delete user.token.expires;
+            _data.create({
+                url: `checks/${phone}.json`,
+                data: helpers.objectToJson({
+                    total: 0,
+                    checks: [],
+                }),
+                callback: (error, data) => {
+                    if (error) {
+                        res({
+                            statusCode: 500,
+                            payload: {
+                                status: false,
+                                error: "Inernval server error",
+                            },
+                        });
+                        return;
+                    }
 
-            res({
-                statusCode: 200,
-                payload: {
-                    status: true,
-                    data: user,
+                    // delete passwork and token exprie from response
+                    delete user.password;
+                    delete user.token.expires;
+
+                    res({
+                        statusCode: 200,
+                        payload: {
+                            status: true,
+                            data: user,
+                        },
+                    });
                 },
             });
         },
