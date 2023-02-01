@@ -136,7 +136,7 @@ checks.post = (req, res) => {
             }
 
             const newCheck = {
-                id: helpers.createId('ch'),
+                id: helpers.createId("ch"),
                 url,
                 methods,
                 protocol,
@@ -171,7 +171,7 @@ checks.post = (req, res) => {
                         return;
                     }
 
-                    if(oldCheckObject?.total >= 5){
+                    if (oldCheckObject?.total >= 5) {
                         res({
                             statusCode: 200,
                             payload: {
@@ -182,7 +182,7 @@ checks.post = (req, res) => {
                         return;
                     }
 
-                    const newChecksArray = [...oldCheckObject.checks, newCheck]
+                    const newChecksArray = [...oldCheckObject.checks, newCheck];
                     const newCheckObject = {
                         total: newChecksArray.length,
                         checks: newChecksArray,
@@ -214,6 +214,89 @@ checks.post = (req, res) => {
                     });
                 },
             });
+        },
+    });
+};
+
+checks.get = (req, res) => {
+    const { phone } = req.query;
+
+    const { authorization } = req.headers;
+    const userToken = authorization?.split(" ")?.pop();
+
+    if (!phone || phone.length < 11) {
+        res({
+            statusCode: 200,
+            payload: {
+                status: false,
+                error: "Invalid phone number",
+            },
+        });
+        return;
+    }
+
+    if (!userToken) {
+        res({
+            statusCode: 400,
+            payload: {
+                status: false,
+                error: "Please provide auth token",
+            },
+        });
+        return;
+    }
+
+    _data.read({
+        url: `users/${phone}.json`,
+        callback: (error, data) => {
+            if (error) {
+                res({
+                    statusCode: 200,
+                    payload: {
+                        status: false,
+                        error: "User does not exist",
+                    },
+                });
+                return;
+            }
+
+            const prevUserData = helpers.jsonToOject(data);
+
+            const storedToken = prevUserData.token;
+            const tokenStatus = helpers.validateToken(userToken, storedToken);
+
+            if (!tokenStatus.status) {
+                res({
+                    statusCode: 400,
+                    payload: tokenStatus,
+                });
+                return;
+            }
+
+            _data.read({
+                url: `checks/${phone}.json`,
+                callback: (error, data) => {
+                    if (error) {
+                        res({
+                            statusCode: 500,
+                            payload: {
+                                status: false,
+                                error: "Internal server error",
+                            },
+                        });
+                        return;
+                    }
+
+                    res({
+                        statusCode: 200,
+                        payload: {
+                            status: true,
+                            data: helpers.jsonToOject(data),
+                        },
+                    });
+                    
+                }
+            })
         },
     });
 };
