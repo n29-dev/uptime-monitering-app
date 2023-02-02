@@ -300,13 +300,152 @@ checks.get = (req, res) => {
     });
 };
 
+checks.put = (req, res) => {
+    const { phone } = req.query;
+
+    const { authorization } = req.headers;
+    const userToken = authorization?.split(" ")?.pop();
+
+    const payload = helpers.jsonToOject(req.payload);
+
+    if (!phone || phone.length < 11) {
+        res({
+            statusCode: 200,
+            payload: {
+                status: false,
+                error: "Invalid phone number",
+            },
+        });
+        return;
+    }
+
+    if (!userToken) {
+        res({
+            statusCode: 400,
+            payload: {
+                status: false,
+                error: "Please provide auth token",
+            },
+        });
+        return;
+    }
+
+    _data.read({
+        url: `users/${phone}.json`,
+        callback: (error, data) => {
+            if (error) {
+                res({
+                    statusCode: 200,
+                    payload: {
+                        status: false,
+                        error: "User does not exist",
+                    },
+                });
+                return;
+            }
+
+            const prevUserData = helpers.jsonToOject(data);
+
+            const storedToken = prevUserData.token;
+            const tokenStatus = helpers.validateToken(userToken, storedToken);
+
+            if (!tokenStatus.status) {
+                res({
+                    statusCode: 400,
+                    payload: tokenStatus,
+                });
+                return;
+            }
+
+            if (!helpers.input.isValidInputArray(payload?.methods)) {
+                res({
+                    statusCode: 200,
+                    payload: {
+                        status: false,
+                        error: "Invalid methods.",
+                    },
+                });
+                return;
+            }
+
+            if (!payload.checkId) {
+                res({
+                    statusCode: 200,
+                    payload: {
+                        status: false,
+                        error: "Invalid check id.",
+                    },
+                });
+                return;
+            }
+
+            _data.read({
+                url: `checks/${phone}.json`,
+                callback: (error, data) => {
+                    if (error) {
+                        res({
+                            statusCode: 500,
+                            payload: {
+                                status: false,
+                                error: "Internal server error",
+                            },
+                        });
+                        return;
+                    }
+
+                    const oldChecksObj = helpers.jsonToOject(data);
+                    const checkToUpdate = oldChecksObj.checks.find((check) => check.id === payload.checkId);
+
+                    if (!checkToUpdate) {
+                        res({
+                            statusCode: 200,
+                            payload: {
+                                status: false,
+                                error: "Check not found",
+                            },
+                        });
+                        return;
+                    }
+
+                    checkToUpdate.methods = payload.methods;
+
+                    _data.update({
+                        url: `checks/${phone}.json`,
+                        data: helpers.objectToJson(oldChecksObj),
+                        callback: (error, data) => {
+                            if (error) {
+                                res({
+                                    statusCode: 500,
+                                    payload: {
+                                        status: false,
+                                        error: "Internal server error",
+                                    },
+                                });
+                                return;
+                            }
+
+                            res({
+                                statusCode: 200,
+                                payload: {
+                                    status: true,
+                                    data: oldChecksObj,
+                                },
+                            });
+                        },
+                    });
+                },
+            });
+        },
+    });
+};
+
 checks.delete = (req, res) => {
     const { phone } = req.query;
 
     const { authorization } = req.headers;
     const userToken = authorization?.split(" ")?.pop();
 
-    const payload = helpers.jsonToOject(req.payload)
+    const payload = helpers.jsonToOject(req.payload);
 
     if (!phone || phone.length < 11) {
         res({
@@ -387,14 +526,14 @@ checks.delete = (req, res) => {
                     const newCheckArray = oldCheckObj.checks.filter((check) => check?.id !== payload?.checkId);
                     const newCheckObj = {
                         total: newCheckArray.length,
-                        checks: newCheckArray
-                    }
+                        checks: newCheckArray,
+                    };
 
                     _data.update({
                         url: `checks/${phone}.json`,
                         data: helpers.objectToJson(newCheckObj),
                         callback: (error, data) => {
-                            if(error){
+                            if (error) {
                                 res({
                                     statusCode: 500,
                                     payload: {
@@ -409,11 +548,11 @@ checks.delete = (req, res) => {
                                 statusCode: 200,
                                 payload: {
                                     status: true,
-                                    data: newCheckObj
+                                    data: newCheckObj,
                                 },
                             });
-                        }
-                    })
+                        },
+                    });
                 },
             });
         },
