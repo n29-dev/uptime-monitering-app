@@ -7,13 +7,28 @@ const http = require("node:http");
 const https = require("node:https");
 const url = require("node:url");
 const fs = require("node:fs");
-const _data = require("./lib/data");
 
 const router = require("./router");
 const handlers = require("./handlers");
 
 const config = require("./config");
 const helpers = require("./lib/helpers");
+
+const twilio = require("./lib/twilio");
+
+twilio.sendSms({
+    payload: {
+        to: "+8801734016309",
+        body: "First sms",
+    },
+    callback: ({ error, message, success }) => {
+        if (error) {
+            console.log(message);
+        }else{
+            console.log(success)
+        }
+    },
+});
 
 // server fn
 const server = (req, res) => {
@@ -37,7 +52,7 @@ const server = (req, res) => {
             query,
             method,
             payload,
-            headers
+            headers,
         };
 
         const defaultHeaders = { "Content-Type": "application/json" };
