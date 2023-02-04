@@ -9,8 +9,16 @@ const url = require("node:url");
 const http = require("node:http");
 const https = require("node:https");
 const twilo = require("./lib/twilio");
+const _log = require("./lib/log");
 
 const worker = {};
+
+worker.log = (file, reqObj, checkRes) => {
+    const logMsg = `#LOG {status:${checkRes.error ? "down" : "up"}} {url:${reqObj.hostname}} {date: ${new Date(
+        checkRes.time
+    )}} {method:${reqObj.method}}`;
+    _log.append({ url: `${file.split(".")[0]}.log`, data: logMsg });
+};
 
 worker.updateCheckState = (filename, checkId, newState) => {
     _data.read({
@@ -41,11 +49,11 @@ worker.updateCheckState = (filename, checkId, newState) => {
     });
 };
 
-worker.informCheckFail = (reqObj, errorObj) => {
+worker.informCheckFail = (reqObj, checkRes) => {
     twilo.sendSms({
         payload: {
             to: "+8801734016309",
-            body: `{SERVER DOWN} ${errorObj.message} --> {URL}: ${reqObj.hostname} | {Method}: ${reqObj.method} | {Time}: ${errorObj.time}`,
+            body: `{SERVER DOWN} ${checkRes.message} --> {URL}: ${reqObj.hostname} | {Method}: ${reqObj.method} | {Time}: ${checkRes.time}`,
         },
 
         callback: (smsError) => console.log(smsError),
@@ -60,26 +68,32 @@ worker.performCheck = ({ reqOptions, callback, validStatusCodes }) => {
         requestModule = https;
     }
 
-    const req = requestModule.request(reqOptions, (res) => {
-        req.removeAllListeners('timeout');
+    const req = requestModule
+        .request(reqOptions, (res) => {
+            req.removeAllListeners("timeout");
 
-        const { statusCode } = res;
+            const { statusCode } = res;
 
-        if (validStatusCodes.indexOf(statusCode) < 0) {
-            if (!statusIsReported) {
-                statusIsReported = true;
-                console.log("Does not meet valid status codes");
+            if (validStatusCodes.indexOf(statusCode) < 0) {
+                if (!statusIsReported) {
+                    statusIsReported = true;
+                    console.log("Does not meet valid status codes");
 
+                    callback({
+                        error: true,
+                        message: `Failed for response code ${statusCode}`,
+                        time: Date.now(),
+                    });
+                }
+            } else {
                 callback({
-                    error: true,
+                    error: false,
                     message: `Got back response code ${statusCode}`,
                     time: Date.now(),
                 });
             }
-        }
-    });
-
-    req.end();
+        })
+        .end();
 
     req.on("timeout", () => {
         if (!statusIsReported) {
@@ -106,7 +120,6 @@ worker.performCheck = ({ reqOptions, callback, validStatusCodes }) => {
             });
         }
     });
-
 };
 
 worker.getSingleCheckObj = (checkObj, from) => {
@@ -120,13 +133,14 @@ worker.getSingleCheckObj = (checkObj, from) => {
         worker.performCheck({
             reqOptions: newReqObj,
             validStatusCodes: checkObj.successCodes,
-            callback: (errorObj) => {
-                if (errorObj.error) {
-                    worker.informCheckFail({...reqObj, method}, errorObj);
+            callback: (checkRes) => {
+                if (checkRes.error) {
+                    worker.informCheckFail({ ...reqObj, method }, checkRes);
                     worker.updateCheckState(from, checkObj.id, "down");
                 } else if (checkObj.state === "down") {
                     worker.updateCheckState(from, checkObj.id, "up");
                 }
+                worker.log(from, newReqObj, checkRes);
             },
         });
     });
@@ -166,8 +180,13 @@ worker.getAllChecks = () => {
     });
 };
 
+worker.checkIntervalTime = 5000;
+
+worker.archeiveInvervalTime = 1000 * 60 * 60 * 24; // 1 day in miliseconds
+
 worker.init = () => {
-    setInterval(worker.getAllChecks, 3000)
+    setInterval(worker.getAllChecks, worker.checkIntervalTime);
+    setInterval(_log.archeive, worker.archeiveInvervalTime)
 };
 
 module.exports = worker;
