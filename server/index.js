@@ -7,12 +7,13 @@ const http = require("node:http");
 const https = require("node:https");
 const url = require("node:url");
 const fs = require("node:fs");
+const path = require('node:path')
 
-const router = require("./router");
-const handlers = require("./handlers");
+const router = require("../router/router");
+const handlers = require("../handlers");
 
-const config = require("./config");
-const helpers = require("./lib/helpers");
+const config = require("../config");
+const helpers = require("../lib/helpers");
 
 const server = {};
 
@@ -63,8 +64,8 @@ server.httpServer = http.createServer(server.serverFn);
 
 // https server
 server.httpsOptions = {
-    key: fs.readFileSync("./https/server.key"),
-    cert: fs.readFileSync("./https/server.cert"),
+    key: fs.readFileSync(path.join(__dirname, "../https/server.key")),
+    cert: fs.readFileSync(path.join(__dirname, "../https/server.cert")),
 };
 
 server.httpsServer = https.createServer(server.httpsOptions, server.serverFn);

@@ -3,13 +3,13 @@
  Entry file for background checks
  *
 */
-const _data = require("./lib//data");
-const helpers = require("./lib/helpers");
+const _data = require("../lib/data");
+const helpers = require("../lib/helpers");
 const url = require("node:url");
 const http = require("node:http");
 const https = require("node:https");
-const twilo = require("./lib/twilio");
-const _log = require("./lib/log");
+const twilo = require("../lib/twilio");
+const _log = require("../lib/log");
 
 const worker = {};
 
