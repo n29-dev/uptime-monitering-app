@@ -7,7 +7,7 @@ const http = require("node:http");
 const https = require("node:https");
 const url = require("node:url");
 const fs = require("node:fs");
-const path = require('node:path')
+const path = require("node:path");
 
 const router = require("../router/router");
 const handlers = require("../handlers");
@@ -42,20 +42,29 @@ server.serverFn = (req, res) => {
             headers,
         };
 
-        const defaultHeaders = { "Content-Type": "application/json" };
+        const defaultJsonHeaders = { "Content-Type": "application/json" };
+        const defaultHTMLHeaders = { "Content-Type": "text/html" };
 
-        handler(
-            data,
-            ({
-                payload: responsePayload = "",
-                headers: responseHeaders = defaultHeaders,
-                statusCode: responseStatusCode = 200,
-            }) => {
-                res.writeHead(responseStatusCode, responseHeaders);
-                res.write(helpers.objectToJson(responsePayload));
-                res.end();
+        const handlerCallback = ({
+            payload: responsePayload,
+            statusCode: responseStatusCode = 200,
+            contentType = "json",
+            headers,
+        }) => {
+            if (contentType === "html") {
+                headers = headers ? headers : defaultHTMLHeaders;
+                responsePayload = responsePayload ? responsePayload : "";
+            } else {
+                headers = headers ? headers : defaultJsonHeaders;
+                responsePayload = helpers.objectToJson(responsePayload);
             }
-        );
+
+            res.writeHead(responseStatusCode, headers);
+            res.write(responsePayload);
+            res.end();
+        };
+
+        handler(data, handlerCallback);
     });
 };
 

@@ -217,8 +217,8 @@ users.get = (req, res) => {
             res({
                 statusCode: 200,
                 payload: {
-                    status: false,
-                    data,
+                    status: true,
+                    data: helpers.jsonToOject(data),
                 },
             });
         },
