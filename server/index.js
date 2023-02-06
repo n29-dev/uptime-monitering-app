@@ -32,7 +32,13 @@ server.serverFn = (req, res) => {
     });
 
     req.on("end", () => {
-        const handler = router[path] || handlers.notFound;
+        let handler;
+
+        if (path.indexOf("public") > -1) {
+            handler = handlers.public;
+        } else {
+            handler = router[path] || handlers.notFound;
+        }
 
         const data = {
             path,
@@ -44,6 +50,10 @@ server.serverFn = (req, res) => {
 
         const defaultJsonHeaders = { "Content-Type": "application/json" };
         const defaultHTMLHeaders = { "Content-Type": "text/html" };
+        const defaultCssHeaders = { "Content-Type": "text/css" };
+        const defaultJsHeaders = { "Content-Type": "text/javascript" };
+        const defaultPngHeaders = { "Content-Type": "image/png" };
+        const defaultFaviconHeaders = { "Content-Type": "image/x-icon" };
 
         const handlerCallback = ({
             payload: responsePayload,
@@ -51,12 +61,30 @@ server.serverFn = (req, res) => {
             contentType = "json",
             headers,
         }) => {
-            if (contentType === "html") {
-                headers = headers ? headers : defaultHTMLHeaders;
-                responsePayload = responsePayload ? responsePayload : "";
-            } else {
-                headers = headers ? headers : defaultJsonHeaders;
-                responsePayload = helpers.objectToJson(responsePayload);
+            switch (contentType) {
+                case "html":
+                    headers = headers ? headers : defaultHTMLHeaders;
+                    responsePayload = responsePayload ? responsePayload : "";
+                    break;
+                case "css":
+                    headers = headers ? headers : defaultCssHeaders;
+                    responsePayload = responsePayload ? responsePayload : "";
+                    break;
+                case "js":
+                    headers = headers ? headers : defaultJsHeaders;
+                    responsePayload = responsePayload ? responsePayload : "";
+                    break;
+                case "png":
+                    headers = headers ? headers : defaultPngHeaders;
+                    responsePayload = responsePayload ? responsePayload : "";
+                    break;
+                case "ico":
+                    headers = headers ? headers : defaultFaviconHeaders;
+                    responsePayload = responsePayload ? responsePayload : "";
+                    break;
+                default:
+                    headers = headers ? headers : defaultJsonHeaders;
+                    responsePayload = helpers.objectToJson(responsePayload);
             }
 
             res.writeHead(responseStatusCode, headers);
@@ -73,8 +101,8 @@ server.httpServer = http.createServer(server.serverFn);
 
 // https server
 server.httpsOptions = {
-    key: fs.readFileSync(path.join(__dirname, "../https/server.key")),
-    cert: fs.readFileSync(path.join(__dirname, "../https/server.cert")),
+    key: fs.readFileSync(path.join(__dirname, "../https/private.key")).toString(),
+    cert: fs.readFileSync(path.join(__dirname, "../https/certificate.crt")).toString(),
 };
 
 server.httpsServer = https.createServer(server.httpsOptions, server.serverFn);
