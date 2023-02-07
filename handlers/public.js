@@ -12,10 +12,7 @@ home.get = (req, res) => {
         res({
             statusCode: 405,
             contentType: "html",
-            payload: {
-                status: false,
-                error: "Unsupported http method",
-            },
+            payload: "",
         });
         return;
     }

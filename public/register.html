@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
         <base href="/public/" />
-        <title>Uptime App</title>
+        <title>Register | Uptime App</title>
     </head>
     <body>
         <main>
@@ -26,11 +26,22 @@
                         </p>
                         <form id="register-form">
                             <div class="relative mb-4">
-                                <label for="name" class="leading-7 text-sm text-gray-600">Name</label>
+                                <label for="firstName" class="leading-7 text-sm text-gray-600">First Name</label>
                                 <input
                                     type="text"
-                                    id="name"
-                                    name="name"
+                                    id="firstName"
+                                    name="firstName"
+                                    required
+                                    class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                />
+                            </div>
+                            <div class="relative mb-4">
+                                <label for="lastName" class="leading-7 text-sm text-gray-600">Last Name</label>
+                                <input
+                                    type="text"
+                                    id="lastName"
+                                    name="lastName"
+                                    required
                                     class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                 />
                             </div>
@@ -40,20 +51,33 @@
                                     type="email"
                                     id="email"
                                     name="email"
+                                    required
                                     class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                 />
                             </div>
                             <div class="relative mb-4">
-                                <label for="message" class="leading-7 text-sm text-gray-600">Number</label>
+                                <label for="phone" class="leading-7 text-sm text-gray-600">Number</label>
                                 <input
-                                    type="phone"
+                                    type="number"
                                     id="phone"
                                     name="phone"
+                                    required
+                                    class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                />
+                            </div>
+                            <div class="relative mb-4">
+                                <label for="password" class="leading-7 text-sm text-gray-600">Password</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    required
                                     class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                 />
                             </div>
                             <button
                                 class="text-white bg-indigo-500 border-0 py-2 px-6 w-full block focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                                type="submit"
                             >
                                 Join
                             </button>
