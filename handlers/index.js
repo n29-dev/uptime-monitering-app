@@ -7,14 +7,14 @@ const handlers = {};
 const users = require("./users");
 const tokens = require("./tokens");
 const checks = require("./checks");
-const home = require('./home');
-const public = require('./public');
+const public = require("./public");
+const staticHandler = require("./staticHandler");
 
 // public handler
 handlers.public = public.get;
 
 // index handler
-handlers.home = home.get;
+handlers.home = staticHandler.handler({ filePath: 'index.html' });
 
 // user handlers
 handlers.users = users.controller;
