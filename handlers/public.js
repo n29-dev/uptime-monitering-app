@@ -22,14 +22,13 @@ home.get = (req, res) => {
 
     const assetPath = req.path.replace("public/", "");
     const assetExt = assetPath.split(".")[1];
-    console.log(assetPath, assetExt);
 
     templater.getAsset({
         url: assetPath,
         callback: (error, data) => {
             if (error) {
                 res({
-                    statusCode: 500,
+                    statusCode: 404,
                     payload: "",
                 });
                 return;

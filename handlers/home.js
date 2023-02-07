@@ -23,6 +23,13 @@ home.get = (req, res) => {
     templater.getAsset({
         url: "index.html",
         callback: (error, data) => {
+            if (error) {
+                res({
+                    statusCode: 500,
+                    contentType: "html",
+                });
+                return;
+            }
             res({
                 contentType: "html",
                 payload: data,
