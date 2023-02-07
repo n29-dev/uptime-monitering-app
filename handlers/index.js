@@ -13,11 +13,14 @@ const staticHandler = require("./staticHandler");
 // public handler
 handlers.public = public.get;
 
-// index handler
+// index page handler
 handlers.home = staticHandler.handler({ filePath: "index.html" });
 
-// login handler
+// register page handler
 handlers.register = staticHandler.handler({ filePath: "register.html" });
+
+// login page handler
+handlers.login = staticHandler.handler({ filePath: "login.html" });
 
 // user handlers
 handlers.users = users.controller;

@@ -17,6 +17,31 @@ if (registerForm) {
 
         if (resp?.status) {
             localStorage.setItem("accessToken", resp?.data?.token);
+            window.location.assign("/");
+        } else {
+            registerForm.getElementById("register-error").innerHTML = resp.error;
+        }
+    });
+}
+
+const loginForm = document.getElementById("login-form");
+
+if (loginForm) {
+    loginForm.addEventListener("submit", async (_event) => {
+        _event.preventDefault();
+
+        const reqBody = {};
+
+        reqBody.phone = _event.currentTarget.phone.value;
+        reqBody.password = _event.currentTarget.password.value;
+
+        const resp = await apiClient.request({ url: "/api/tokens", body: reqBody, method: "POST" });
+
+        if (resp?.status) {
+            localStorage.setItem("accessToken", resp?.data?.token);
+            window.location.assign("/");
+        } else {
+            document.getElementById("login-error").innerHTML = resp.error;
         }
     });
 }

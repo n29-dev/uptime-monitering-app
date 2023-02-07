@@ -6,6 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
         <base href="/public/" />
+        <script>
+            if (localStorage.getItem("accessToken")) {
+                window.location.replace("/");
+            }
+        </script>
         <title>Register | Uptime App</title>
     </head>
     <body>
@@ -75,6 +80,7 @@
                                     class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
                                 />
                             </div>
+                            <p id="register-error" class="text-xs text-red-600 my-3"></p>
                             <button
                                 class="text-white bg-indigo-500 border-0 py-2 px-6 w-full block focus:outline-none hover:bg-indigo-600 rounded text-lg"
                                 type="submit"

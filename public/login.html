@@ -6,76 +6,59 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
         <base href="/public/" />
-        <title>Uptime App</title>
+        <title>Login | Uptime App</title>
         <script>
-            document.onload = () => {
-                if (!localStorage.getItem("accessToken")) {
-                    window.location.assign("/login");
-                }
-            };
+            if (localStorage.getItem("accessToken")) {
+                window.location.replace("/");
+            }
         </script>
     </head>
     <body>
-        <!-- header start-->
-        <header class="text-gray-600 body-font">
-            <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
-                <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        class="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full"
-                        viewBox="0 0 24 24"
-                    >
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                    </svg>
-                    <span class="ml-3 text-xl">Uptime</span>
-                </a>
-                <nav class="md:ml-auto flex flex-wrap items-center text-base justify-center">
-                    <a href="/sn.html" class="mr-5 hover:text-gray-900">Dashboard</a>
-                    <a class="mr-5 hover:text-gray-900">Account</a>
-                    <a class="mr-5 hover:text-gray-900">Login</a>
-                </nav>
-                <button
-                    id="button"
-                    class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0"
-                >
-                    Logout
-                    <svg
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        class="w-4 h-4 ml-1"
-                        viewBox="0 0 24 24"
-                    >
-                        <path d="M5 12h14M12 5l7 7-7 7"></path>
-                    </svg>
-                </button>
-            </div>
-        </header>
-        <!-- header end-->
         <main>
-            <section class="text-gray-600 body-font">
-                <div class="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
+            <section class="text-gray-600 body-font relative">
+                <div class="container px-5 py-24 mx-auto flex sm:flex-nowrap flex-wrap">
                     <div
-                        class="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center"
+                        class="lg:w-2/4 md:w-1/2 rounded-lg overflow-hidden sm:mr-10 flex items-end justify-start relative"
                     >
-                        <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
-                            Uptime Monitering <br class="hidden lg:inline-block" />Made Simple
-                        </h1>
-                        <p class="mb-8 leading-relaxed">
-                            Copper mug try-hard pitchfork pour-over freegan heirloom neutra air plant cold-pressed tacos
-                            poke beard tote bag. Heirloom echo park mlkshk tote bag selvage hot chicken authentic
-                            tumeric truffaut hexagon try-hard chambray.
-                        </p>
-                    </div>
-                    <div class="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
                         <img src="./images/hero.png" alt="" />
+                    </div>
+                    <div class="lg:w-2/4 md:w-1/2 bg-white flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0">
+                        <h2 class="text-gray-900 text-lg mb-1 font-medium title-font">Login to your account</h2>
+                        <p class="leading-relaxed mb-5 text-gray-600">
+                            Post-ironic portland shabby chic echo park, banjo fashion axe
+                        </p>
+                        <form id="login-form">
+                            <div class="relative mb-4">
+                                <label for="phone" class="leading-7 text-sm text-gray-600">Number</label>
+                                <input
+                                    type="number"
+                                    id="phone"
+                                    name="phone"
+                                    required
+                                    class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                />
+                            </div>
+                            <div class="relative mb-4">
+                                <label for="password" class="leading-7 text-sm text-gray-600">Password</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    required
+                                    class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                />
+                            </div>
+                            <p id="login-error" class="text-xs text-red-600 my-3"></p>
+                            <button
+                                class="text-white bg-indigo-500 border-0 py-2 px-6 w-full block focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                                type="submit"
+                            >
+                                Login
+                            </button>
+                            <p class="text-xs text-gray-500 mt-3">
+                                Chicharrones blog helvetica normcore iceland tousled brook viral artisan.
+                            </p>
+                        </form>
                     </div>
                 </div>
             </section>
@@ -153,6 +136,7 @@
                         <svg
                             fill="currentColor"
                             stroke="currentColor"
+                            x
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="0"
