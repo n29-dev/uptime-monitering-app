@@ -1,9 +1,9 @@
 // app container
-const app = {
+const apiClient = {
     accessToken: localStorage.getItem("accessToken"),
 };
 
-app.fetch = async ({ url, query, body, header, method = "get" }) => {
+apiClient.fetch = async ({ url, query, body, header, method = "get" }) => {
     let constructUrl = url;
     let constructHeader = { "Content-Type": "application/json", Authorization: `Bearer ${app.accessToken}` };
 
@@ -27,8 +27,4 @@ app.fetch = async ({ url, query, body, header, method = "get" }) => {
         const data = await resp.json();
         console.log(data);
     } catch (error) {}
-};
-
-document.getElementById("button").onclick = () => {
-    app.fetch({ url: "api/users", query: { phone: "01734016309" } });
 };
