@@ -1,7 +1,7 @@
 // app container
 const apiClient = {
-    accessToken: localStorage.getItem("accessToken"),
-    request: async ({ url, query, body, header, method = "get" }) => {
+    accessToken: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user"))?.token?.key : null,
+    request: async ({ url, query, body, header, method = "GET" }) => {
         let constructUrl = url;
         let constructHeader = { "Content-Type": "application/json", Authorization: `Bearer ${apiClient.accessToken}` };
 

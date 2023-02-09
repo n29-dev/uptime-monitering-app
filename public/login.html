@@ -8,9 +8,11 @@
         <base href="/public/" />
         <title>Login | Uptime App</title>
         <script>
-            if (localStorage.getItem("accessToken")) {
-                window.location.replace("/");
-            }
+            window.onload = () => {
+                if (localStorage.getItem("user")) {
+                    window.location.replace("/");
+                }
+            };
         </script>
     </head>
     <body>

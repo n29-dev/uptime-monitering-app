@@ -207,6 +207,7 @@ users.get = (req, res) => {
             const tokenStatus = helpers.validateToken(userToken, storedToken);
 
             if (!tokenStatus.status) {
+                console.log("triggered");
                 res({
                     statusCode: 400,
                     payload: tokenStatus,
@@ -380,7 +381,10 @@ users.put = (req, res) => {
 
                     res({
                         statusCode: 200,
-                        payload: updatedUser,
+                        payload: {
+                            status: true,
+                            data: updatedUser,
+                        },
                     });
                 },
             });

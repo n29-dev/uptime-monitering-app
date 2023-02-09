@@ -97,7 +97,8 @@ tokens.post = (req, res) => {
                         payload: {
                             status: true,
                             data: {
-                                token: newTokenObj.key,
+                                phone: payload.phone,
+                                token: newTokenObj,
                             },
                         },
                     });

@@ -1,0 +1,7 @@
+input:read-only{
+    background-color: whitesmoke;
+}
+
+#update-account-form.empty input{
+    background-color: whitesmoke;
+}
