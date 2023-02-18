@@ -426,6 +426,7 @@ users.delete = (req, res) => {
         url: `users/${phone}.json`,
         callback: (error, data) => {
             if (error) {
+                console.log(phone);
                 res({
                     statusCode: 200,
                     payload: {
@@ -462,11 +463,27 @@ users.delete = (req, res) => {
                         return;
                     }
 
-                    res({
-                        statusCode: 200,
-                        payload: {
-                            status: true,
-                            data: "User sucessfully deleted",
+                    _data.delete({
+                        url: `checks/${phone}.json`,
+                        callback: (error) => {
+                            if (error) {
+                                res({
+                                    statusCode: 500,
+                                    payload: {
+                                        status: false,
+                                        error: "Internal Server Error",
+                                    },
+                                });
+                                return;
+                            }
+
+                            res({
+                                statusCode: 200,
+                                payload: {
+                                    status: true,
+                                    data: "User sucessfully deleted",
+                                },
+                            });
                         },
                     });
                 },

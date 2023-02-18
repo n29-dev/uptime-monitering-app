@@ -5,3 +5,10 @@ input:read-only{
 #update-account-form.empty input{
     background-color: whitesmoke;
 }
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+  }

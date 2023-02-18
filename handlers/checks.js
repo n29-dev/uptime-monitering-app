@@ -33,7 +33,7 @@ checks.post = (req, res) => {
     const { phone } = req.query;
 
     const { authorization } = req.headers;
-    const userToken = authorization?.split(" ")?.pop();
+    const userToken = authorization?.split(" ").pop();
 
     const payload = helpers.jsonToOject(req.payload);
 
@@ -86,11 +86,10 @@ checks.post = (req, res) => {
                 return;
             }
 
-            // console.log(helpers.input.isValidInputArray(payload?.methods))
             console.log(typeof payload.methods);
 
             const url = helpers.input.isValidUrl(payload?.url) ? payload.url.trim() : "";
-            const methods = helpers.input.isValidInputArray(payload?.methods) ? payload.methods : "";
+            const methods = ["get"];
             const protocol = helpers.input.isValidProtocol(payload?.protocol) ? payload.protocol : "";
             const successCodes = helpers.input.isValidInputArray(payload?.successCodes) ? payload.successCodes : "";
             const timeout = helpers.input.isValidTimeout(payload?.timeout) ? payload.timeout : "";
@@ -101,10 +100,6 @@ checks.post = (req, res) => {
             switch ("") {
                 case url:
                     inputError = "Invalid url name";
-                    break;
-
-                case methods:
-                    inputError = "Invalid methods name";
                     break;
 
                 case protocol:

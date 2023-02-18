@@ -68,6 +68,8 @@ worker.performCheck = ({ reqOptions, callback, validStatusCodes }) => {
         requestModule = https;
     }
 
+    console.log(reqOptions);
+
     const req = requestModule
         .request(reqOptions, (res) => {
             req.removeAllListeners("timeout");
@@ -186,7 +188,7 @@ worker.archeiveInvervalTime = 1000 * 60 * 60 * 24; // 1 day in miliseconds
 
 worker.init = () => {
     setInterval(worker.getAllChecks, worker.checkIntervalTime);
-    setInterval(_log.archeive, worker.archeiveInvervalTime)
+    setInterval(_log.archeive, worker.archeiveInvervalTime);
 };
 
 module.exports = worker;

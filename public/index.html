@@ -7,6 +7,7 @@
         <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
         <base href="/public/" />
         <title>Uptime App</title>
+        <link rel="stylesheet" href="./style/main.css" />
         <script>
             window.onload = () => {
                 if (!localStorage.getItem("user")) {
@@ -62,21 +63,102 @@
         <!-- header end-->
         <main>
             <section class="text-gray-600 body-font">
-                <div class="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
-                    <div
-                        class="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center"
-                    >
-                        <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
-                            Uptime Monitering <br class="hidden lg:inline-block" />Made Simple
-                        </h1>
-                        <p class="mb-8 leading-relaxed">
-                            Copper mug try-hard pitchfork pour-over freegan heirloom neutra air plant cold-pressed tacos
-                            poke beard tote bag. Heirloom echo park mlkshk tote bag selvage hot chicken authentic
-                            tumeric truffaut hexagon try-hard chambray.
-                        </p>
+                <div class="container px-5 py-24 mx-auto flex gap-8 items-start">
+                    <div class="lg:w-2/4 md:w-1/2 bg-gray-100 rounded-lg p-8">
+                        <h2 class="text-gray-900 text-lg font-medium title-font mb-5">All Checks</h2>
+                        <div id="all-checks">
+                            <table class="w-full bg-white rounded border border-gray-300">
+                                <thead>
+                                    <th class="p-2 border border-gray-300 text-left">Protocol</th>
+                                    <th class="p-2 border border-gray-300 text-left">Url</th>
+                                    <th class="p-2 border border-gray-300 text-left">Success Codes</th>
+                                    <th class="p-2 border border-gray-300 text-left">Timeout</th>
+                                    <th class="p-2 border border-gray-300 text-left">Action</th>
+                                </thead>
+                                <tbody id="all-checks-table"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
-                        <img src="./images/hero.png" alt="" />
+                    <div class="lg:w-2/4 md:w-1/2 bg-gray-100 rounded-lg p-8 flex flex-col w-full mt-10 md:mt-0">
+                        <h2 class="text-gray-900 text-lg font-medium title-font mb-5">Add Check</h2>
+                        <form id="add-check-form">
+                            <div class="relative mb-4">
+                                <label for="protocol" class="leading-7 text-sm text-gray-600">Protocol</label>
+                                <select
+                                    class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out h-[42px]"
+                                    name="protocol"
+                                >
+                                    <option value="https">Https</option>
+                                    <option value="http">Http</option>
+                                </select>
+                            </div>
+                            <div class="relative mb-4">
+                                <label for="url" class="leading-7 text-sm text-gray-600">Address</label>
+                                <input
+                                    type="text"
+                                    id="url"
+                                    name="url"
+                                    class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                />
+                            </div>
+                            <div class="relative mb-4">
+                                <label for="timeout" class="leading-7 text-sm text-gray-600">Timeout</label>
+                                <input
+                                    type="number"
+                                    id="timeout"
+                                    name="timeout"
+                                    min="1"
+                                    max="5"
+                                    class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                />
+                            </div>
+                            <div class="relative mb-4">
+                                <label class="leading-7 text-sm text-gray-600">Sucess Codes</label>
+                                <div class="flex items-center justify-start gap-3">
+                                    <label>
+                                        <span class="align-middle">200</span>
+                                        <input
+                                            type="checkbox"
+                                            name="s_c-200"
+                                            class="bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none align-middle text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                    /></label>
+                                    <label>
+                                        <span class="align-middle">201</span>
+                                        <input
+                                            type="checkbox"
+                                            name="s_c-201"
+                                            class="bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none align-middle text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                    /></label>
+                                    <label>
+                                        <span class="align-middle">202</span>
+                                        <input
+                                            type="checkbox"
+                                            name="s_c-202"
+                                            class="bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none align-middle text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                    /></label>
+                                    <label class="align-middle">
+                                        <span class="align-middle">203</span>
+                                        <input
+                                            type="checkbox"
+                                            name="s_c-203"
+                                            class="bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none align-middle text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                    /></label>
+                                    <label class="align-middle">
+                                        <span class="align-middle">204</span>
+                                        <input
+                                            type="checkbox"
+                                            name="s_c-204"
+                                            class="bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none align-middle text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                    /></label>
+                                </div>
+                            </div>
+                            <p id="add-check-error" class="text-xs text-red-600 my-3"></p>
+                            <button
+                                class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                            >
+                                Add
+                            </button>
+                        </form>
                     </div>
                 </div>
             </section>
